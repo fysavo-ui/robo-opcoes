@@ -1,3 +1,23 @@
+import streamlit as st
+import sqlite3
+import pandas as pd
+from seguranca import check_password
+
+# Interrompe a execução caso o utilizador não esteja autenticado
+if not check_password():
+    st.stop()
+
+# ==========================================
+# PAINEL PRINCIPAL (Apenas visível após login)
+# ==========================================
+st.title("Sistema de Opções - Painel Seguro")
+st.success("Acesso autorizado com sucesso!")
+
+# Exemplo de interação com a base de dados modular (database.py)
+if st.button("Consultar Estado do Robô"):
+    st.write("A ler dados de opções...")
+
+
 import tkinter as tk
 from tkinter import messagebox, ttk
 
