@@ -19,27 +19,29 @@ st.write("Bem-vindo ao seu painel modular de opções na nuvem.")
 if st.button("Consultar Dados / Atualizar"):
     with st.spinner("A consultar a base de dados..."):
         try:
-            # Estabelece ligação à base de dados SQLite local do projeto
+            # Estabelece ligação à base de dados SQLite local
             conn = sqlite3.connect("opcoes.db")
             
-            # Verifica que tabelas existem na base de dados
-            tabelas_df = pd.read_sql("SELECT name FROM sqlite_master WHERE type='table';", conn)
+            # Filtra para ignorar tabelas internas do SQLite e mostrar apenas as suas
+            tabelas_df = pd.read_sql("SELECT name FROM sqlite_master WHERE type='table' AND name != 'sqlite_sequence';", conn)
             
             if not tabelas_df.empty:
-                st.info("Tabelas encontradas na base de dados:")
-                st.dataframe(tabelas_df)
+                lista_tabelas = tabelas_df['name'].tolist()
                 
-                # Exemplo: Lê e exibe o conteúdo da primeira tabela disponível
-                primeira_tabela = tabelas_df.iloc[0]['name']
-                st.subheader(f"Registos da tabela: {primeira_tabela}")
+                # Cria um menu suspenso para escolher qual tabela visualizar
+                tabela_escolhida = st.selectbox("Selecione a tabela que deseja consultar:", lista_tabelas)
                 
-                dados_df = pd.read_sql(f"SELECT * FROM {primeira_tabela}", conn)
+                st.subheader(f"Registos da tabela: {tabela_escolhida}")
+                
+                # Lê e exibe os dados da tabela escolhida
+                dados_df = pd.read_sql(f"SELECT * FROM {tabela_escolhida}", conn)
                 if not dados_df.empty:
                     st.dataframe(dados_df)
+                    st.caption(f"Total de registos encontrados: {len(dados_df)}")
                 else:
                     st.warning("A tabela selecionada está atualmente vazia.")
             else:
-                st.warning("A base de dados ainda não contém tabelas criadas. Execute a rotina do robô primeiro para popular os dados.")
+                st.warning("A base de dados ainda não contém tabelas criadas.")
                 
             conn.close()
             
